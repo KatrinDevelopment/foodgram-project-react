@@ -1,23 +1,15 @@
-from django.conf import settings
-from django.core.paginator import Page, Paginator
-from django.db.models import QuerySet
-from django.http import HttpRequest
+import base64
+
+from django.core.files.base import ContentFile
+
+from rest_framework import serializers
 
 
-def paginate(
-    request: HttpRequest,
-    queryset: QuerySet,
-    posts_number: int = settings.PAGE_SIZE,
-) -> Page:
-    return Paginator(queryset, posts_number).get_page(request.GET.get('page'))
+class Base64ImageField(serializers.ImageField):
+    def to_internal_value(self, data):
+        if isinstance(data, str) and data.startswith('data:image'):
+            format, imgstr = data.split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
-
-def truncatechars(
-    text: str,
-    string_truncate_num: int = settings.STRING_TRUNCATE_NUM,
-) -> str:
-    return (
-        text[:string_truncate_num] + '…'
-        if len(text) > string_truncate_num
-        else text
-    )
+        return super().to_internal_value(data)
