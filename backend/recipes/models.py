@@ -54,7 +54,7 @@ class Ingredient(models.Model):
                 fields=['name', 'measurement_unit'],
                 name='unique_name_measurement_unit',
             ),
-        ],
+        ]
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
