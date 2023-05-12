@@ -1,6 +1,5 @@
-from django.db import models
-
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
@@ -14,19 +13,21 @@ class User(AbstractUser):
         'уникальный юзернейм',
         max_length=150,
         unique=True,
-        help_text='Введите username',)
+        help_text='Введите username',
+    )
     first_name = models.CharField(
         'Имя',
         max_length=150,
-        help_text='Введите имя',)
+        help_text='Введите имя',
+    )
     last_name = models.CharField(
         'фамилия',
         max_length=150,
-        help_text='Введите фамилию',)
-    password = models.CharField('пароль',
-                                max_length=150,
-                                blank=False,
-                                help_text='Введите пароль')
+        help_text='Введите фамилию',
+    )
+    password = models.CharField(
+        'пароль', max_length=150, blank=False, help_text='Введите пароль',
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -36,8 +37,8 @@ class User(AbstractUser):
         verbose_name_plural = 'пользователи'
         constraints = [
             models.UniqueConstraint(
-                fields=('username', 'email'), name='unique_username_email'
-            )
+                fields=('username', 'email'), name='unique_username_email',
+            ),
         ]
 
     def __str__(self):
@@ -65,7 +66,7 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_follow',
-            )
+            ),
         ]
 
     def __str__(self) -> str:

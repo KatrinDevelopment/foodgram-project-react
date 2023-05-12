@@ -1,5 +1,5 @@
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
 
 from users.models import User
 
@@ -38,11 +38,13 @@ class Ingredient(models.Model):
     name = models.CharField(
         max_length=200,
         help_text='Введите название ингредиента',
-        verbose_name='название ингредиента',)
+        verbose_name='название ингредиента',
+    )
     measurement_unit = models.CharField(
         max_length=50,
         help_text='Введите единицу измерения',
-        verbose_name='единица измерения',)
+        verbose_name='единица измерения',
+    )
 
     class Meta:
         verbose_name = 'ингредиент'
@@ -50,9 +52,9 @@ class Ingredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
-                name='unique_name_measurement_unit'
-            )
-        ]
+                name='unique_name_measurement_unit',
+            ),
+        ],
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
@@ -63,7 +65,7 @@ class Recipe(models.Model):
         User,
         verbose_name='автор',
         related_name='recipes',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -82,12 +84,13 @@ class Recipe(models.Model):
         blank=True,
         null=True,
         help_text='Добавьте картинку блюда',
-        upload_to='app/media/images/'
+        upload_to='app/media/images/',
     )
     name = models.CharField(
         max_length=200,
         help_text='Введите название рецепта',
-        verbose_name='название рецепта',)
+        verbose_name='название рецепта',
+    )
     text = models.TextField(
         help_text='Введите текст рецепта',
         verbose_name='текст рецепта',
@@ -137,7 +140,9 @@ class RecipeIngredients(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
-                name='unique_ingredient')]
+                name='unique_ingredient',
+            ),
+        ]
 
     def __str__(self) -> str:
         return f'{self.recipe}, {self.ingredient}'
@@ -154,7 +159,7 @@ class Favorite(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorite',
-        verbose_name='рецепт'
+        verbose_name='рецепт',
     )
 
     class Meta:
@@ -162,8 +167,9 @@ class Favorite(models.Model):
         verbose_name_plural = 'избранное'
         constraints = [
             models.UniqueConstraint(
-                fields=('user', 'recipe'), name='unique_favorite'
-            )
+                fields=('user', 'recipe'),
+                name='unique_favorite',
+            ),
         ]
 
     def __str__(self):
@@ -191,8 +197,8 @@ class ShoppingCart(models.Model):
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
                 name='unique_shoppingcart',
-            )
+            ),
         ]
 
     def __str__(self):
-        return f"{self.recipe} {self.user}"
+        return f'{self.recipe} {self.user}'
