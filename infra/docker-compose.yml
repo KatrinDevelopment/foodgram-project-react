@@ -10,7 +10,7 @@ services:
       - ./.env
 
   web:
-    image: katrinsa/foodgram:v3.11.05.23
+    image: katrinsa/foodgram:latest
     restart: always
     volumes:
       - static_value:/app/static/

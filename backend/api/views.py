@@ -28,7 +28,6 @@ from users.models import Follow, User
 class UserViewSet(CustomUserView):
     queryset = User.objects.all()
     serializer_class = serializers.CustomUserSerializer
-    pagination_class = LimitPagePagination
     filter_backends = (
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -44,27 +43,26 @@ class UserViewSet(CustomUserView):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated],
     )
-    def subscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
-        user = get_object_or_404(User, username=request.user)
+    def subscribe(self, request, id):
+        following = get_object_or_404(User, pk=id)
+        user = request.user
         if request.method == 'POST':
             serializer = serializers.FollowSerializer(
-                author,
+                following,
                 data=request.data,
                 context={'request': request},
             )
             serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
+            Follow.objects.create(user=user, following=following)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        subscription = get_object_or_404(Follow, user=user, author=author)
-        subscription.delete()
+        get_object_or_404(Follow, user=user, following=following).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         pages = self.paginate_queryset(
-            User.objects.filter(subscribe__user=request.user),
+            User.objects.filter(following__user=request.user),
         )
         serializer = serializers.FollowSerializer(
             pages,

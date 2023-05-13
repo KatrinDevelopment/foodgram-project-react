@@ -54,29 +54,6 @@ class TagSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class FollowSerializer(ModelSerializer):
-    class Meta:
-        model = Follow
-        fields = ('user', 'author')
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'author'],
-                message='Вы уже подписаны на этого автора.',
-            ),
-        ]
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        self.context['subscriptions'] = set(
-            Follow.objects.filter(user_id=request.user.id).values_list(
-                'author_id',
-                flat=True,
-            ),
-        )
-        return FollowSerializer(instance.author, context=self.context).data
-
-
 class IngredientSerializer(ModelSerializer):
     class Meta:
         fields = '__all__'
@@ -126,8 +103,17 @@ class RecipeInfoSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
         read_only_fields = ('id', 'name', 'image', 'cooking_time')
 
+    def validate(self, data):
+        user = self.context.get('request').user
+        if Favorite.objects.filter(recipe=self.instance, user=user).exists():
+            raise serializers.ValidationError(
+                detail='Рецепт уже в избранных',
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+        return data
 
-class FollowListSerializer(serializers.ModelSerializer):
+
+class FollowSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField(read_only=True)
@@ -166,18 +152,28 @@ class FollowListSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, author):
         return Follow.objects.filter(
             user=self.context.get('request').user,
-            author=author,
+            following=author.pk,
+        ).exists()
+        
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(
+            user=request.user,
+            following=obj.pk,
         ).exists()
 
+
     def validate(self, data):
-        author = self.instance
+        following = self.instance
         user = self.context.get('request').user
-        if Follow.objects.filter(author=author, user=user).exists():
+        if Follow.objects.filter(following=following, user=user).exists():
             raise serializers.ValidationError(
                 detail='Подписка уже существует',
                 code=status.HTTP_400_BAD_REQUEST,
             )
-        if user == author:
+        if user == following:
             raise serializers.ValidationError(
                 detail='Нельзя подписаться на самого себя',
                 code=status.HTTP_400_BAD_REQUEST,
@@ -296,25 +292,6 @@ class RecipePostSerializer(ModelSerializer):
             instance,
             context={'request': self.context.get('request')},
         ).data
-
-
-class SubscriptionRecipeSerializer(ModelSerializer):
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-        read_only_fields = ('__all__',)
-
-    def validate(self, data):
-        recipe = self.instance
-        user = self.context.get('request').user
-        if Favorite.objects.filter(recipe=recipe, user=user).exists():
-            raise serializers.ValidationError(
-                detail='Рецепт уже в избранных',
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-        return data
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
