@@ -12,13 +12,12 @@ from rest_framework.response import Response
 
 from api import serializers
 from api.filters import IngredientFilter, RecipeFilter
-from api.pagination import LimitPagePagination
 from api.permissions import AdminOrReadOnly, AuthorOrReadOnly
 from recipes.models import (
     Favorite,
     Ingredient,
     Recipe,
-    RecipeIngredients,
+    RecipeIngredient,
     ShoppingCart,
     Tag,
 )
@@ -115,8 +114,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def add_to(serializer_class, request, pk):
         recipe = get_object_or_404(Recipe, id=pk)
-        data = {'user': request.user.id, 'recipe': recipe.id}
-        serializer = serializer_class(data=data, context={'request': request})
+        serializer = serializer_class(
+            data={'user': request.user.id, 'recipe': recipe.id},
+            context={'request': request},
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -148,7 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         url_path='shopping_cart',
     )
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
+        if request and request.method == 'POST':
             return self.add_to(serializers.ShoppingCartSerializer, request, pk)
         return self.del_from(ShoppingCart, request, pk)
 
@@ -159,7 +160,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             shopping_list += (
                 f'\n{ingredient["ingredient__name"]} '
                 f'({ingredient["ingredient__measurement_unit"]}) - '
-                f'{ingredient["amount"]}'
+                f'{ingredient["total_amount"]}'
             )
         filename = 'shopping_cart.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
@@ -174,12 +175,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def make_shopping_list(self, request):
         ingredients = (
-            RecipeIngredients.objects.filter(
+            RecipeIngredient.objects.filter(
                 recipe__shopping_cart__user=request.user,
             )
             .order_by('ingredient__name')
             .values('ingredient__name', 'ingredient__measurement_unit')
-            .annotate(amount=Sum('amount'))
+            .annotate(total_amount=Sum('amount'))
         )
         return self.download_shopping_cart(ingredients)
 
@@ -189,4 +190,5 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.IngredientSerializer
     pagination_class = None
     permission_classes = (AdminOrReadOnly,)
-    filter_backends = [IngredientFilter]
+    filter_backends = (IngredientFilter,)
+    search_fields = ('^name',)

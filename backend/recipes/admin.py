@@ -1,9 +1,10 @@
 from django.contrib import admin
+
 from recipes.models import (
     Favorite,
     Ingredient,
     Recipe,
-    RecipeIngredients,
+    RecipeIngredient,
     ShoppingCart,
     Tag,
 )
@@ -18,12 +19,12 @@ models = [
 admin.site.register(models)
 
 
-class RecipeIngredientsInLine(admin.TabularInline):
-    model = RecipeIngredients
+class RecipeIngredientInLine(admin.TabularInline):
+    model = RecipeIngredient
 
 
-@admin.register(RecipeIngredients)
-class RecipeIngredientsAdmin(admin.ModelAdmin):
+@admin.register(RecipeIngredient)
+class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = (
         'recipe',
         'ingredient',
@@ -78,7 +79,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author', 'is_favorited')
     search_fields = ('author', 'name', 'tags')
     list_filter = ('author', 'name', 'tags')
-    inlines = (RecipeIngredientsInLine,)
+    inlines = (RecipeIngredientInLine,)
     empty_value_display = '-пусто-'
 
     def is_favorited(self, obj):

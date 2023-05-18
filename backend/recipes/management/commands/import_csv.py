@@ -6,6 +6,7 @@ from django.core.management import BaseCommand
 
 from recipes.models import Ingredient
 
+
 class Command(BaseCommand):
     help_text = 'Loads data from csv files'
 
@@ -16,6 +17,7 @@ class Command(BaseCommand):
             reader = csv.reader(f)
             for name, unit in reader:
                 Ingredient.objects.get_or_create(
-                    name=name, measurement_unit=unit,
+                    name=name,
+                    measurement_unit=unit,
                 )
             print('Ingredients data successfully uploaded')

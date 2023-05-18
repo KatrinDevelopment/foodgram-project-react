@@ -26,7 +26,10 @@ class User(AbstractUser):
         help_text='Введите фамилию',
     )
     password = models.CharField(
-        'пароль', max_length=150, blank=False, help_text='Введите пароль',
+        'пароль',
+        max_length=150,
+        blank=False,
+        help_text='Введите пароль',
     )
 
     USERNAME_FIELD = 'email'
@@ -37,7 +40,8 @@ class User(AbstractUser):
         verbose_name_plural = 'пользователи'
         constraints = [
             models.UniqueConstraint(
-                fields=('username', 'email'), name='unique_username_email',
+                fields=('username', 'email'),
+                name='unique_username_email',
             ),
         ]
 
