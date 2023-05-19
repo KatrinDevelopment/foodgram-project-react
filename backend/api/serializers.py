@@ -1,6 +1,5 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, status
-from rest_framework.generics import get_object_or_404
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import ModelSerializer, SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
@@ -90,8 +89,7 @@ class IngredientsAmountSerializer(ModelSerializer):
 
     class Meta:
         model = RecipeIngredient
-        fields = ("id", "amount")
-
+        fields = ('id', 'amount')
 
 
 class RecipeInfoSerializer(serializers.ModelSerializer):
@@ -115,7 +113,10 @@ class FollowSerializer(CustomUserSerializer):
     recipes_count = serializers.SerializerMethodField()
 
     class Meta(CustomUserSerializer.Meta):
-        fields = CustomUserSerializer.Meta.fields + ('recipes', 'recipes_count')
+        fields = CustomUserSerializer.Meta.fields + (
+            'recipes',
+            'recipes_count',
+        )
         read_only_fields = (
             'email',
             'username',
@@ -139,7 +140,8 @@ class FollowSerializer(CustomUserSerializer):
         user = self.context.get('request').user
         if not user.is_anonymous:
             return Follow.objects.filter(
-                user=obj.user, following=obj.pk,
+                user=obj.user,
+                following=obj.pk,
             ).exists()
         return False
 
@@ -183,7 +185,8 @@ class RecipeSerializer(ModelSerializer):
         if request.user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(
-            user=request.user, recipe__id=obj.id,
+            user=request.user,
+            recipe__id=obj.id,
         ).exists()
 
     class Meta:
