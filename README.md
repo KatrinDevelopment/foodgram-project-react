@@ -1,4 +1,5 @@
 # praktikum_new_diplom
+![Status](https://github.com/KatrinDevelopment/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
 
 ## Описание проекта
 
@@ -20,12 +21,11 @@ Foodgram — это идеальное место для всех любител
 
 Мы надеемся, что наш сервис станет вашим незаменимым продуктовым помощником!
 
-## Ресурсы API YaMDb
+## Ресурсы API
 
 Ознакомьтесь с нашей документацией, чтобы узнать, что доступно в API и как его
-использовать в репозитории `yatube_api/static/redoc.yaml` или по адресу:
-[redoc](http://51.250.72.161/redoc/) - сайт будет доступен после 2-го этапа
-разработки
+использовать в репозитории `docs/redoc.yaml` или по адресу:
+[redoc](http://51.250.72.161/redoc/)
 
 ## Проект создан
 
