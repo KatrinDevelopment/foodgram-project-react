@@ -18,7 +18,7 @@ from users.models import Follow, User
 
 
 class CustomUserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -86,14 +86,12 @@ class RecipeIngredientsSerializer(ModelSerializer):
 
 
 class IngredientsAmountSerializer(ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.values_list('id', flat=True),
-    )
-    amount = serializers.IntegerField()
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 
     class Meta:
         model = RecipeIngredient
-        fields = ['id', 'amount']
+        fields = ("id", "amount")
+
 
 
 class RecipeInfoSerializer(serializers.ModelSerializer):
@@ -112,23 +110,12 @@ class RecipeInfoSerializer(serializers.ModelSerializer):
         return data
 
 
-class FollowSerializer(serializers.ModelSerializer):
+class FollowSerializer(CustomUserSerializer):
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
-        )
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + ('recipes', 'recipes_count')
         read_only_fields = (
             'email',
             'username',
@@ -226,11 +213,11 @@ class RecipePostSerializer(ModelSerializer):
     def validate_ingredients(self, ingredients):
         ingredients_list = []
         if not ingredients:
-            raise serializers.ValidationError('Не выбраны ингридиенты')
+            raise serializers.ValidationError('Не выбраны ингредиенты')
         for ingredient in ingredients:
             if ingredient['id'] in ingredients_list:
                 raise serializers.ValidationError(
-                    'Ингридиенты должны быть уникальными',
+                    'Ингредиенты должны быть уникальными',
                 )
             ingredients_list.append(ingredient['id'])
         return ingredients
@@ -252,23 +239,21 @@ class RecipePostSerializer(ModelSerializer):
             )
         return cooking_time
 
-    def update_or_create_recipe(self, validated_data, instance=None):
+    def update_create_recipe(self, validated_data, instance=None):
         tag_list = validated_data.pop('tags', None)
         ingredient_list = validated_data.pop('ingredients', None)
         if not instance:
-            instance = Recipe()
-        super().update(instance, validated_data)
-        instance.save()
-        instance.ingredients.clear()
-        instance.tags.clear()
+            instance = super().create(validated_data)
+        else:
+            super().update(instance, validated_data)
+            instance.ingredients.clear()
+            instance.tags.clear()
 
         RecipeIngredient.objects.bulk_create(
             [
                 RecipeIngredient(
                     recipe=instance,
-                    ingredient=get_object_or_404(
-                        Ingredient, id=ingredient_item['id'],
-                    ),
+                    ingredient=ingredient_item['id'],
                     amount=ingredient_item['amount'],
                 )
                 for ingredient_item in ingredient_list
@@ -278,10 +263,10 @@ class RecipePostSerializer(ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        return self.update_or_create_recipe(validated_data)
+        return self.update_create_recipe(validated_data)
 
     def update(self, instance, validated_data):
-        return self.update_or_create_recipe(validated_data, instance=instance)
+        return self.update_create_recipe(validated_data, instance=instance)
 
     def to_representation(self, instance):
         return RecipeSerializer(
