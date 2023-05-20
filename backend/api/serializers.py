@@ -136,15 +136,6 @@ class FollowSerializer(CustomUserSerializer):
     def get_recipes_count(self, author):
         return Recipe.objects.filter(author=author).count()
 
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if not user.is_anonymous:
-            return Follow.objects.filter(
-                user=obj.user,
-                following=obj.pk,
-            ).exists()
-        return False
-
     def validate(self, data):
         following = self.instance
         user = self.context.get('request').user
