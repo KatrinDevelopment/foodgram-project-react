@@ -31,7 +31,6 @@ flake8-use-fstring==1.4
 flake8-variables-names==0.0.5
 gunicorn==20.0.4
 isort==5.10.1
-logging==0.4.9.6
 psycopg2-binary==2.8.6
 python-dotenv==0.21.0
 
