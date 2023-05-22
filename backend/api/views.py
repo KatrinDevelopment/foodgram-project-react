@@ -6,12 +6,12 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from api import serializers
 from api.filters import IngredientFilter, RecipeFilter
+from api.pagination import LimitPagePagination
 from api.permissions import AdminOrReadOnly, AuthorOrReadOnly
 from recipes.models import (
     Favorite,
@@ -82,7 +82,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = serializers.RecipeSerializer
     permission_classes = (AuthorOrReadOnly,)
-    pagination_class = PageNumberPagination
+    pagination_class = LimitPagePagination
     filter_backends = (
         DjangoFilterBackend,
         OrderingFilter,
