@@ -13,7 +13,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '*',
     '51.250.72.161',
-    'foodka.servepics.com'
+    'foodka.servepics.com',
 ]
 
 
