@@ -2,7 +2,7 @@
 
 ![Status](https://github.com/KatrinDevelopment/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
 
-Foodgram: [http://51.250.72.161/](http://51.250.72.161/)
+Foodgram: [http://foodka.servepics.com/](http://foodka.servepics.com/)
 Email админки: admin@gmail.com
 Пароль админки: 1234
 
@@ -30,7 +30,7 @@ Foodgram — это идеальное место для всех любител
 
 Ознакомьтесь с нашей документацией, чтобы узнать, что доступно в API и как его
 использовать в репозитории `docs/redoc.yaml` или по адресу:
-[redoc](http://51.250.72.161/redoc/)
+[redoc](http://foodka.servepics.com/redoc/)
 
 ## Как запустить проект
 
