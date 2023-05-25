@@ -2,8 +2,7 @@
 
 ![Status](https://github.com/KatrinDevelopment/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
 
-Foodgram: [http://foodka.servebeer.com/](http://foodka.servebeer.com/), изменена
-настройка ВМ на непрерываемую.
+Foodgram: [http://foodka.servebeer.com/](http://foodka.servebeer.com/).
 Email админки: admin@gmail.com
 Пароль админки: 1234
 
