@@ -1,6 +1,6 @@
 # praktikum_new_diplom
 
-![Status](https://github.com/KatrinDevelopment/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)
+![Status](https://github.com/KatrinDevelopment/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 Foodgram: [http://foodka.servebeer.com/](http://foodka.servebeer.com/).
 Email админки: admin@gmail.com
